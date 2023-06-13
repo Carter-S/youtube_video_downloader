@@ -1,3 +1,5 @@
+from youtube_video import YoutubeVideo
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QHBoxLayout, QWidget
 
 class LinkInputWindow(QMainWindow):
@@ -26,6 +28,16 @@ class LinkInputWindow(QMainWindow):
 
     def link_submitted(self):
         print(self.link_input.text())
+        try:
+            video = YoutubeVideo(self.link_input.text())
+            print("SUCCESS! VALID LINK!")
+        except:
+            print("ERROR! INVALID LINK!")
+        
+
+class VideoDataWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
         
 app = QApplication([])
