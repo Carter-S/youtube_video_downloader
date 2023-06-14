@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, QThread
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QFileDialog, QComboBox, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon, QFont
 import urllib, traceback, time
@@ -97,7 +97,7 @@ class VideoDataWindow(QWidget):
         self.select_stream = QPushButton("Download")
         self.select_stream.clicked.connect(self.download_stream)
         self.dropdown = QComboBox()
-        for stream in self.video.streams.filter(file_extension='mp4'):
+        for stream in self.video.streams.filter(progressive=True):
             s = self.dropdown.addItem(str(stream))
         download_options.addWidget(self.dropdown)
         download_options.addWidget(self.select_stream)
@@ -108,9 +108,10 @@ class VideoDataWindow(QWidget):
 
     def download_stream(self):
         index = self.dropdown.currentIndex()
-        stream = self.video.streams.filter(file_extension='mp4')[index]
+        stream = self.video.streams.filter(progressive=True)[index]
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         stream.download(output_path=file)
+        print("Donwloading....")
         self.close()
             
 
