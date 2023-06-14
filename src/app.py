@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QFileDialog, QComboBox, QSizePolicy
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QFont
 import urllib, traceback, time
 from pytube import YouTube
 import qdarkstyle
@@ -56,21 +56,20 @@ class VideoDataWindow(QWidget):
         thumbnail_data = urllib.request.urlopen(thumbnail_url).read()
         thumbnail_pix = QPixmap()
         thumbnail_pix.loadFromData(thumbnail_data)
-        try:
-            thumbnail_pix = thumbnail_pix.scaledToWidth(500, Qt.TransformationMode.SmoothTransformation)
-            thumbnail = QLabel()
-            thumbnail.setScaledContents(True)
-            thumbnail.setPixmap(thumbnail_pix)
-            thumbnail.setSizePolicy(size_policy)
-        except:
-            traceback.print_exc()
+        thumbnail_pix = thumbnail_pix.scaledToHeight(600,Qt.TransformationMode.SmoothTransformation)
+        thumbnail = QLabel()
+        thumbnail.setScaledContents(True)
+        thumbnail.setPixmap(thumbnail_pix)
+        thumbnail.setSizePolicy(size_policy)
         thumbnail.setAlignment(Qt.AlignCenter)
         video_details.addWidget(thumbnail)
         title_auth = QVBoxLayout()
         title = QLabel(self.video.title)
         title.setAlignment(Qt.AlignCenter)
+        title.setWordWrap(True)
         auth = QLabel(self.video.author)
         auth.setAlignment(Qt.AlignCenter)
+        auth.setWordWrap(True)
         title_auth.addWidget(title)
         title_auth.addWidget(auth)
         video_details.addLayout(title_auth)
@@ -91,7 +90,6 @@ class VideoDataWindow(QWidget):
         video_stats.addWidget(video_length)
         video_stats.addWidget(date_published)
         video_stats.addWidget(views)
-
         main_layout.addLayout(video_stats)
 
         #Download options section
@@ -121,6 +119,8 @@ app.setStyle("Breeze")
 app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 window = MainWindow()
 window.setMinimumSize(QSize(500, 500))
+font = QFont("consolas", 12)
+app.setFont(font)
 window.show()
 
 app.exec()
