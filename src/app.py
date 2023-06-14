@@ -1,9 +1,10 @@
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QFileDialog, QComboBox
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLineEdit, QPushButton, QHBoxLayout, QWidget, QLabel, QVBoxLayout, QFileDialog, QComboBox, QSizePolicy
 from PyQt5.QtGui import QPixmap, QIcon
 import urllib, traceback, time
 from pytube import YouTube
+import qdarkstyle
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -37,7 +38,6 @@ class MainWindow(QMainWindow):
             video = YouTube(self.link_input.text())
             print("SUCCESS! VALID LINK!")
             self.data_window = VideoDataWindow(video)
-            self.data_window.setMinimumSize(QSize(1000, 500))
             self.data_window.show()
         except:
             print("ERROR! INVALID LINK!")
@@ -47,7 +47,7 @@ class VideoDataWindow(QWidget):
     def __init__(self, video):
         self.video = video
         super().__init__()
-
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         main_layout = QVBoxLayout()
 
         #Video details section
@@ -56,12 +56,21 @@ class VideoDataWindow(QWidget):
         thumbnail_data = urllib.request.urlopen(thumbnail_url).read()
         thumbnail_pix = QPixmap()
         thumbnail_pix.loadFromData(thumbnail_data)
-        thumbnail = QLabel()
-        thumbnail.setPixmap(thumbnail_pix)
+        try:
+            thumbnail_pix = thumbnail_pix.scaledToWidth(500, Qt.TransformationMode.SmoothTransformation)
+            thumbnail = QLabel()
+            thumbnail.setScaledContents(True)
+            thumbnail.setPixmap(thumbnail_pix)
+            thumbnail.setSizePolicy(size_policy)
+        except:
+            traceback.print_exc()
+        thumbnail.setAlignment(Qt.AlignCenter)
         video_details.addWidget(thumbnail)
         title_auth = QVBoxLayout()
         title = QLabel(self.video.title)
+        title.setAlignment(Qt.AlignCenter)
         auth = QLabel(self.video.author)
+        auth.setAlignment(Qt.AlignCenter)
         title_auth.addWidget(title)
         title_auth.addWidget(auth)
         video_details.addLayout(title_auth)
@@ -72,10 +81,13 @@ class VideoDataWindow(QWidget):
         converted_length = time.strftime("%H:%M:%S", time.gmtime(self.video.length))
         string = "Video length: "+str(converted_length)
         video_length = QLabel(string)
+        video_length.setAlignment(Qt.AlignCenter)
         string = "Date published: "+str(self.video.publish_date.strftime("%m/%d/%Y"))
         date_published = QLabel(string)
+        date_published.setAlignment(Qt.AlignCenter)
         string = "Views: "+str(self.video.views)
         views = QLabel(string)
+        views.setAlignment(Qt.AlignCenter)
         video_stats.addWidget(video_length)
         video_stats.addWidget(date_published)
         video_stats.addWidget(views)
@@ -105,9 +117,10 @@ class VideoDataWindow(QWidget):
             
 
 app = QApplication([])
-
+app.setStyle("Breeze")
+app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 window = MainWindow()
-window.setMinimumSize(QSize(500,500))
+window.setMinimumSize(QSize(500, 500))
 window.show()
 
 app.exec()
